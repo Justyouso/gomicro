@@ -4,7 +4,7 @@ import (
 	"fmt"
 	httptransport "github.com/go-kit/kit/transport/http"
 	routermux "github.com/gorilla/mux"
-	. "gomicro/Service"
+	. "gomicro/Services"
 	"gomicro/utils"
 	"log"
 	"net/http"
