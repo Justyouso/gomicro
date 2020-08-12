@@ -2,10 +2,14 @@ package utils
 
 import (
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/satori/go.uuid"
 	"log"
 )
 
 var ConsulClient *consulapi.Client
+var ServiceID string   // 服务ID
+var ServiceName string //服务名称
+var ServicePort int    // 服务端口
 
 func init() {
 	config := consulapi.DefaultConfig()
@@ -18,16 +22,24 @@ func init() {
 	}
 	ConsulClient = client
 
+	ServiceID = "userservice" + uuid.NewV4().String()
+
+}
+
+//设置Service name 和 port
+func SetServiceNameAndPort(name string, port int) {
+	ServiceName = name
+	ServicePort = port
 }
 
 func RegService() {
 
 	//被注册服务信息
 	res := consulapi.AgentServiceRegistration{}
-	res.ID = "userservice"
-	res.Name = "userservice"
+	res.ID = ServiceID
+	res.Name = ServiceName
 	res.Address = "169.254.175.50"
-	res.Port = 8080
+	res.Port = ServicePort
 	res.Tags = []string{"primary"}
 
 	//心跳Api
@@ -47,5 +59,5 @@ func RegService() {
 
 //反注册
 func UnregService() {
-	ConsulClient.Agent().ServiceDeregister("userservice")
+	ConsulClient.Agent().ServiceDeregister(ServiceID)
 }
