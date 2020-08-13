@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	consulapi "github.com/hashicorp/consul/api"
 	"github.com/satori/go.uuid"
 	"log"
@@ -45,7 +46,7 @@ func RegService() {
 	//心跳Api
 	check := consulapi.AgentServiceCheck{}
 	check.Interval = "5s"
-	check.HTTP = "http://169.254.175.50:8080/health"
+	check.HTTP = fmt.Sprintf("http://%s:%d/health", res.Address, ServicePort)
 
 	//将心跳放入注册服务信息
 	res.Check = &check

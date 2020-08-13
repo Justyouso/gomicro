@@ -5,6 +5,7 @@ import (
 	"fmt"
 	httptransport "github.com/go-kit/kit/transport/http"
 	routermux "github.com/gorilla/mux"
+	"golang.org/x/time/rate"
 	. "gomicro/Services"
 	"gomicro/utils"
 	"log"
@@ -31,11 +32,20 @@ func main() {
 
 	//创建user和endpiont
 	user := UserService{}
-	endp := GenUserEndpoint(user)
+	//endp := GenUserEndpoint(user)
 
+	//有限流功能的endpoint
+	limit := rate.NewLimiter(1, 5)
+	//endpoint处理包含了错误信息
+	endp := RateLimit(limit)(GenUserEndpoint(user))
+
+	//自定义处理error
+	options := []httptransport.ServerOption{
+		httptransport.ServerErrorEncoder(MyErrorEncoder),
+	}
 	// 创建httpHandler
 	serverHandler := httptransport.NewServer(endp, DecodeUserRequest,
-		EncodeUserResponse)
+		EncodeUserResponse, options...)
 
 	//创建一个路由
 	r := routermux.NewRouter()
